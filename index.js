@@ -10,12 +10,12 @@ const PROV_IP = "108.175.13.7";
 app.use(cors());
 app.use(express.json());
 
-// Ruta universal optimizada
-app.get('/media/series/hls/:channelIdWithExt', async (req, res) => {
-    const param = req.params.channelIdWithExt;
+// Ruta ultra simple: /canal/ID.m3u8 o solo /canal/ID
+app.get('/canal/:id', async (req, res) => {
+    let channelId = req.params.id;
     
-    // Extraemos el ID limpio quitando el .m3u8 si viene en la URL
-    const channelId = param.replace('.m3u8', '');
+    // Si viene con .m3u8 se lo quitamos para limpiar el ID
+    channelId = channelId.replace('.m3u8', '');
 
     if (!TOKEN_GLOBAL) {
         return res.status(503).send("Error: Esperando token de Termux...");
@@ -35,11 +35,9 @@ app.get('/media/series/hls/:channelIdWithExt', async (req, res) => {
             }
         });
 
-        // Cabeceras estrictas para streaming HLS compatible con web y VLC
         res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
         
-        // Pasamos el flujo de datos directo sin procesar
         response.data.pipe(res);
     } catch (error) {
         console.error("Error en Proxy:", error.message);
@@ -56,6 +54,6 @@ app.post('/actualizar-token', (req, res) => {
     res.status(400).json({ error: "Token inválido" });
 });
 
-app.get('/', (req, res) => res.send("Proxy Universal Funcionando 🚀"));
+app.get('/', (req, res) => res.send("Proxy Simplificado Funcionando 🚀"));
 
-app.listen(PORT, () => console.log(`Servidor listo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor listo`));
